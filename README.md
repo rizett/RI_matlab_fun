@@ -9,6 +9,6 @@ defaultz.m    = sets defualt parameters (e.g. figure font, position etc.); run i
 format_plot.m = add gridlines and box to plot
 saveASCII     = 
 saveNetCDF    =
-  
+
 Robert Izett
 rizett@eoas.ubc.ca
