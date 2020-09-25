@@ -1,7 +1,18 @@
-function format_plot()
+function format_plot(ax)
 
-%Add gridlines and box to plot
+%Generic function to format a figure axis.
 
-set(gca,'xgrid','on','ygrid','on','box','on','layer','top','xminortick','on','yminortick','on')
-
+if ~exist('ax','var')
+    ax = gca;
 end
+
+%Add grid lines and minor ticks
+set(ax,'xgrid','on','ygrid','on','box','on','layer','top','xminortick','on','yminortick','on')
+
+%Set x,y labels to bold.
+xlab = get(gca,'xlabel');
+    xlab.FontWeight = 'bold';
+ylab = get(gca,'ylabel');
+    ylab.FontWeight = 'bold';
+    
+return

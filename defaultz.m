@@ -13,4 +13,5 @@ set(0,'defaultTextFontName','Gill Sans MT'); %font type
 set(groot, 'FixedWidthFontName','Gill Sans MT')
 set(0,'defaultaxesfontsize',fntsz); %font size
 set(groot, 'defaultFigurePosition',[750 200 560 420]) %figure position
+set(0,'DefaultLegendAutoUpdate','off'); %turns off auto legend updating
 

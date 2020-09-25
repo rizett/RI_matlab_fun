@@ -1,4 +1,4 @@
-function saveASCII(data, long_name, units, sdir, sname);
+function saveASCII(data, long_name, units, sdir, sname,global_name,global_string,comment);
 
 %-----------------------------------------------------------------------
 % Save array data from matlab structure to ASCII (.txt) format:
@@ -25,7 +25,7 @@ function saveASCII(data, long_name, units, sdir, sname);
 %
 % R. Izett (rizett@eoas.ubc.ca)
 % UBC, Oceanography
-% Last updated: Jan. 2018
+% Last updated: Apr. 2020
 %-----------------------------------------------------------------------
 
 %--- get all field names from data structure
@@ -33,6 +33,34 @@ fds = fields(data);
 
 dat = [];
 headers = {};
+
+%--- Open file
+    if ispc
+        fid = fopen([sdir '\' sname '.txt'],'wt');
+    else
+        fid = fopen([sdir '/' sname '.txt'],'wt');
+    end
+
+%-- Add metadata at top
+    if exist('global_name','var') & exist('global_string','var')
+        
+        fprintf(fid,'%s\n\n','FILE INFORMATION:');
+
+        %Global attributes
+        for gg = 1:numel(global_name);
+            fprintf(fid,'   %s: %s\n',global_name{gg}, global_string{gg});
+        end
+        fprintf(fid,'\n');
+    end
+    
+    %Data comments
+    if exist('comment','var')        
+        fprintf(fid,'%s\n\n','DATA COMMENTS:');
+        for ff = 1:numel(fds)
+            fprintf(fid,'   %s: %s\n',fds{ff}, comment{ff});
+        end
+        fprintf(fid,'\n');
+    end
 
 %--- go through each field of double data and extract data
 for kk = 1:numel(fds)
@@ -58,12 +86,13 @@ for kk = 1:numel(fds)
         
 end
 
-%save
-    fid = fopen([sdir '\' sname '.txt'],'wt');
+%--- write data to file
+    fprintf(fid,'DATA:\n');
+    fprintf(fid,'\n');
     fprintf(fid,[repmat('%s,',1,length(headers(1,:))-1),'%s\n'],headers{:});
     seq = [repmat('%0.3f,',1,length(dat(1,:)))]; seq = seq(1:end-1); seq = [seq,'\n'];
-    for kk = 1:length(dat)
-        fprintf(fid,seq,dat(kk,:));
+    for kk = 1:size(dat,1)
+         fprintf(fid,seq,dat(kk,:));
     end
     fclose(fid);
 

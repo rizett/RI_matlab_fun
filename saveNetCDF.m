@@ -1,4 +1,4 @@
-function [ncdat] = saveNetCDF(data, long_name, units, sdir, sname);
+function [ncdat] = saveNetCDF(data, long_name, units, comment, global_name, global_string, sdir, sname);
 
 %-----------------------------------------------------------------------
 % Save array data from matlab structure to netCDF format:
@@ -15,10 +15,20 @@ function [ncdat] = saveNetCDF(data, long_name, units, sdir, sname);
 %	e.g. long_name = {‘Julian day (2018)’; ‘North latitude’};
 % units = Cell array containing identifying the units of each variable.
 % 	e.g. units = {‘Days since 1 Jan. 2018’; ‘deg. N’};
-% sdir = directory where the data will be saved (string) - EXCLUDING
-% EXTENSION; if not specified, will save in cd
+% comment = Cell array containing comments corresponding with each
+%   variable/long_name/units. 
+%   Create blank array of cells (e.g. repmat(' ',size(long_name)) to add no
+%   comments
+%   e.g. comment = {' '; 'ship's GPS; decimal degrees'};
+% global_name = Cell array of names for global attributes
+%   e.g. global_name = {'Program';'Platform';'PI name/contact'};
+% global_string = Cell array of string / text to populate with each global
+%   name
+%   e.g. global_string = {'test save';'my computer';'rizett@eoas.ubc.ca'};
+% sdir = directory where the data will be saved (string); 
+%   if not specified, will save in cd
 % sname = save name (string) - EXCLUDING EXTENSION; if not specified, will
-% save as 'robert_is_cool';
+%   save as 'robert_is_cool';
 %
 % OUTPUT:
 % ncdat = netCDF data (ncdat.variables and ncdat.netcdf);
@@ -26,7 +36,7 @@ function [ncdat] = saveNetCDF(data, long_name, units, sdir, sname);
 %
 % R. Izett (rizett@eoas.ubc.ca)
 % UBC, Oceanography
-% Last updated: Jan. 2018
+% Last updated: Apr. 2020
 %-----------------------------------------------------------------------
 
 if ~exist('sdir','var')
@@ -41,7 +51,22 @@ end
 	fds = fields(data); 
 
 %--- open/create file
-    ncid = netcdf.create([sdir,'./',sname,'.nc'],'NC_WRITE');
+    current = cd;
+    cd(sdir);
+    if ispc        
+        if isempty(dir(['*',sname,'*']))
+            ncid = netcdf.create([sdir,'\',sname,'.nc'],'NETCDF4');
+        else
+            ncid = netcdf.create([sdir,'\',sname,'.nc'],'CLOBBER');
+        end
+    else
+        if isempty(dir(['*',sname,'*']))
+            ncid = netcdf.create([sdir,'/',sname,'.nc'],'NETCDF4');
+        else
+            ncid = netcdf.create([sdir,'/',sname,'.nc'],'CLOBBER');
+        end
+    end
+    cd(current)    
     
 %--- build netCDF variable
     for kk = 1:numel(fds)
@@ -56,10 +81,16 @@ end
         %Add attributes
             netcdf.putAtt(ncid,dat_id(kk),'Units',units{kk})
             netcdf.putAtt(ncid,dat_id(kk),'Full Name',long_name{kk})
-        %Add global attribute and finish defining variables
+            netcdf.putAtt(ncid,dat_id(kk),'Comment',comment{kk})
+        %Add global attributes and finish defining variables
             if kk == numel(fds)    
+                for gg = 1:numel(global_name)
+                    glob = netcdf.getConstant('GLOBAL');
+                    netcdf.putAtt(ncid,glob,global_name{gg,:},global_string{gg,:});
+                end
+                clear gg                
                 glob = netcdf.getConstant('GLOBAL');
-                netcdf.putAtt(ncid,glob,'Date Saved:',datestr(now));
+                netcdf.putAtt(ncid,glob,'Date Saved',datestr(now));
                 netcdf.endDef(ncid);
             end
     end
