@@ -29,11 +29,35 @@ function saveASCII(data, long_name, units, sdir, sname,global_name,global_string
 %-----------------------------------------------------------------------
 
 %--- get all field names from data structure
-fds = fields(data);
-
-dat = [];
-headers = {};
-
+    fds = fields(data);
+    not_dub = zeros(size(fds));
+    for kk = 1:numel(fds)
+        x = data.(fds{kk});
+        x = whos('x');
+        cl{kk,:} = x.class;
+        if ~strcmp(cl{kk,:},'double')
+            not_dub(kk) = 1;
+        end
+    end
+    %Fields w/ double data
+    dub_fds = fds(not_dub == 0);
+        dub_long_name = long_name(not_dub == 0);
+        dub_units = units(not_dub == 0);    
+    nd_fds = fds(not_dub == 1);
+        nd_cl = cl(not_dub==1);
+        nd_long_name = long_name(not_dub == 1);
+        nd_units = units(not_dub == 1);
+    
+    %Sort input data/info
+    [~,ii] = sort(not_dub,'descend');
+        fds = fds(ii);
+        cl = cl(ii);
+        if exist('comment','var') 
+            comment = comment(ii);
+        end
+        long_name = long_name(ii);
+        units = units(ii);
+    
 %--- Open file
     if ispc
         fid = fopen([sdir '\' sname '.txt'],'wt');
@@ -57,14 +81,16 @@ headers = {};
     if exist('comment','var')        
         fprintf(fid,'%s\n\n','DATA COMMENTS:');
         for ff = 1:numel(fds)
-            fprintf(fid,'   %s: %s\n',fds{ff}, comment{ff});
+            fprintf(fid,'   %s: %s\n',long_name{ff,:}, comment{ff});
         end
         fprintf(fid,'\n');
     end
 
 %--- go through each field of double data and extract data
-for kk = 1:numel(fds)
-    dat_here = data.(fds{(kk)});
+dat = [];
+headers = {};
+for kk = 1:numel(dub_fds)
+    dat_here = data.(dub_fds{(kk)});
     
     %reshape data into columns if necessary
         s = size(dat_here);
@@ -78,7 +104,7 @@ for kk = 1:numel(fds)
     end
         
     %make header
-        head = [long_name{(kk)} ' [' units{(kk)} ']'];
+        head = [dub_long_name{(kk)} ' [' dub_units{(kk)} ']'];
         
     %add to data matrix
         dat = [dat, dat_here]; clear dat_here
@@ -86,13 +112,29 @@ for kk = 1:numel(fds)
         
 end
 
+%--- make headers for non-double data/info
+    nd_head = [];
+    for kk = 1:numel(nd_fds)
+        nd_head = [nd_head, [nd_long_name{kk}, ' [', nd_units{kk} ']']];
+    end
+    headers = [nd_head,headers];
+    
 %--- write data to file
     fprintf(fid,'DATA:\n');
     fprintf(fid,'\n');
     fprintf(fid,[repmat('%s,',1,length(headers(1,:))-1),'%s\n'],headers{:});
-    seq = [repmat('%0.3f,',1,length(dat(1,:)))]; seq = seq(1:end-1); seq = [seq,'\n'];
+    
+    %make input sequence
+        seq = [repmat('%s,',1,numel(nd_fds)), repmat('%0.3f,',1,numel(dub_fds))];
+        seq = seq(1:end-1); seq = [seq,'\n'];
+    
     for kk = 1:size(dat,1)
-         fprintf(fid,seq,dat(kk,:));
+        %get non-double data to write
+        inp = [];
+        for nn = 1:numel(nd_fds)
+            inp = [inp,'strtrim(char(data.(nd_fds{nn})(kk,:))),'];
+        end
+        fprintf(fid,seq,eval(inp),dat(kk,:));
     end
     fclose(fid);
 

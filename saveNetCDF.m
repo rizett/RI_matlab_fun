@@ -36,7 +36,7 @@ function [ncdat] = saveNetCDF(data, long_name, units, comment, global_name, glob
 %
 % R. Izett (rizett@eoas.ubc.ca)
 % UBC, Oceanography
-% Last updated: Apr. 2020
+% Last updated: Nov. 2020
 %-----------------------------------------------------------------------
 
 if ~exist('sdir','var')
@@ -74,14 +74,31 @@ end
             this_dat = data.(fds{kk}); %data
             this_nom = fds{kk}; %name
 
-        %Define variable dimension
-            dimid(kk) = netcdf.defDim(ncid,this_nom,length(this_dat));
-        %Define ID for the array variable
-            dat_id(kk) = netcdf.defVar(ncid,this_nom,'double',[dimid(kk)]);
-        %Add attributes
+        %get variable size and class
+            sz = size(this_dat);
+            x = whos('this_dat');
+                cl = x.class;
+        
+        if any(sz == 1)  % IF data is Nx1 array
+            %Define variable dimension
+                dimid = netcdf.defDim(ncid,this_nom,length(this_dat));
+            %Define ID for the array variable
+                dat_id(kk) = netcdf.defVar(ncid,this_nom,cl,[dimid]);
+            
+        else
+            for ss = 1:numel(sz)
+                %Define variable dimension
+                    dimid(ss) = netcdf.defDim(ncid,[this_nom,'_',num2str(ss)],sz(ss));
+            end
+            %Define ID for the array variable
+                dat_id(kk) = netcdf.defVar(ncid,this_nom,cl,[dimid]);
+        end
+        
+        %Add variable attributes
             netcdf.putAtt(ncid,dat_id(kk),'Units',units{kk})
             netcdf.putAtt(ncid,dat_id(kk),'Full Name',long_name{kk})
             netcdf.putAtt(ncid,dat_id(kk),'Comment',comment{kk})
+                
         %Add global attributes and finish defining variables
             if kk == numel(fds)    
                 for gg = 1:numel(global_name)
@@ -93,6 +110,8 @@ end
                 netcdf.putAtt(ncid,glob,'Date Saved',datestr(now));
                 netcdf.endDef(ncid);
             end
+            
+        clear dimid
     end
 
 %--- Store data
@@ -106,7 +125,7 @@ end
         
         clear this_data this_nom
     end
-
+    
 %--- Close and save
     netcdf.close(ncid)
 
