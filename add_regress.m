@@ -43,6 +43,9 @@ function reg = add_regress(xdat,ydat,col,lw,inc_stats,lt);
     end    
 
 % remove nans
+    ydat(abs(xdat)==Inf) = nan; xdat(abs(xdat)==Inf) = nan;
+    xdat(abs(ydat)==Inf) = nan; ydat(abs(ydat)==Inf) = nan;
+    
     xdat = xdat(~isnan(ydat)); ydat = ydat(~isnan(ydat));
     ydat = ydat(~isnan(xdat)); xdat = xdat(~isnan(xdat));
     
