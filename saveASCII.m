@@ -124,18 +124,23 @@ end
     fprintf(fid,'\n');
     fprintf(fid,[repmat('%s,',1,length(headers(1,:))-1),'%s\n'],headers{:});
     
-    %make input sequence
+    %make input sequence string
         seq = [repmat('%s,',1,numel(nd_fds)), repmat('%0.3f,',1,numel(dub_fds))];
         seq = seq(1:end-1); seq = [seq,'\n'];
     
     for kk = 1:size(dat,1)
         %get non-double data to write
-        inp = [];
-        for nn = 1:numel(nd_fds)
-            inp = [inp,'strtrim(char(data.(nd_fds{nn})(kk,:))),'];
+        if ~isempty(nd_fds)
+            inp = [];
+            for nn = 1:numel(nd_fds)
+                inp = [inp,'strtrim(char(data.(nd_fds{nn})(kk,:))),'];
+            end
+            fprintf(fid,seq,eval(inp),dat(kk,:));
+        else
+            fprintf(fid,seq,dat(kk,:));
         end
-        fprintf(fid,seq,eval(inp),dat(kk,:));
     end
+    
     fclose(fid);
 
 end

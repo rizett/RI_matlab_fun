@@ -23,8 +23,8 @@ if nargin < 4
 end
 
 %Get original tick labels
-    xl = get(h,'xlim')
-    yl = get(h,'ylim')
+    xl = get(h,'xlim');
+    yl = get(h,'ylim');
     if ax == 'x'
         hi = get(h,'xaxis');
     elseif ax == 'y'
