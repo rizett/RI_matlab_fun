@@ -86,7 +86,7 @@ function reg = add_regress(xdat,ydat,col,lw,inc_stats,lt);
         reg.pred = pred_y;
         reg.orig_y = ydat;
         reg.orig_x = xdat;
-        
+        reg.equn_txt = ['Y = ' num2str(round(reg.slope,3)) 'X + ' num2str(round(reg.intercept,3))];
     else
         reg = [];
     end
