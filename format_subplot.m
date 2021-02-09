@@ -4,10 +4,12 @@ function format_subplot(np,bw,L,B,T,R,same);
 % Formats vertical subplot - reduce space between subplots, 
 % remove tick axes, add vertical grid lines
 %
+% USAGE: format_subplot(np,bw,L,B,T,R,same) 
+% 
 % INPUT:
 % np = number of plots
 % bw = space between subplots (default = 0.075)
-% [L,B,T,R] = left,bottom,top,right
+% [L,B,T,R] = left,bottom,top,right margins
 % same = true (1) / false (0) for whether to make x-limits the same
 % 
 % R. Izett

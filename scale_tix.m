@@ -34,9 +34,8 @@ end
     tx = hi.TickValues;
     
 %Scale tick labels    
-    tls = tl;
-    for kk = 1:numel(tl)
-        tls{kk} = num2str(str2num(tl{kk})*scale);
+    for kk = 1:length(tx)
+        tls{kk} = num2str(tx(kk)*scale);
     end
     
 %Set tick labels
