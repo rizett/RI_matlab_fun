@@ -65,7 +65,7 @@ function reg = add_regress(xdat,ydat,col,lw,inc_stats,lt);
         xdat = reshape(xdat,size(ydat));
 %     plot(xdat,pred_y,'r.')
     rsq = stats(1); 
-    pv = stats(end);
+    pv = stats(3);
     
 %Plot line
     hold on
