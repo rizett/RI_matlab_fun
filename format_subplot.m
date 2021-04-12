@@ -117,6 +117,10 @@ wd = 1 - L - R; %width
     end
 
 %re-adjust subplot sizes
+    %check if x,y grids are on
+        xgr = get(Fc(1),'xgrid');
+        ygr = get(Fc(1),'ygrid');
+            
     for kk = 1:np
         
         p = Fc(kk); %get subplot handle
@@ -130,9 +134,9 @@ wd = 1 - L - R; %width
         end
         
         if same
-            set(p,'xgrid','on','xlim',[xl],'ygrid','on');
+            set(p,'xgrid',xgr,'xlim',[xl],'ygrid',ygr);
         else
-            set(p,'xgrid','on','ygrid','on');
+            set(p,'xgrid',xgr,'ygrid',ygr);
         end
         
         set(p,'box','on');
