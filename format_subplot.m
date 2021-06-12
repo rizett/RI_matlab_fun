@@ -96,12 +96,14 @@ wd = 1 - L - R; %width
         Fc = Fc(ii);
         
     ax = [];
-    if ~(n_axes == np) %if n_axes is NOT the same as the number of subplots (i.e. no plotyy plots)
+    if ~(n_axes == np) %if n_axes is NOT the same as the number of subplots (i.e. plotyy plots included)
         %Get subplot no.    
         fcp(n_axes+1:end,:) = []; %remove position info for non-axes handles
         Fc(n_axes+1:end) = [];
         
         for kk = 2:n_axes
+%         kk=2;
+%         while kk >=2 & kk <= n_axes;
             sp_here = fcp(kk,:);
             
             %where subplot positions are the same as other subplots
@@ -112,7 +114,9 @@ wd = 1 - L - R; %width
                     ax = [ax; Fc(kk)];
                     Fc(kk) = []; %get rid of axes if it is a "repeat" / plotyy
                 end
-            end            
+            end  
+%             n_axes = numel(Fc);
+%             kk=kk+1;
         end
     end
 
